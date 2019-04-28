@@ -34,17 +34,18 @@ class GraphThread:
     def run(self):
         # Get a new task from the server
         task = self.get_task()
-        self.print("(%d) Received graph with %d nodes" % (task['Id'], task['NodeCount']), BGCOLORS.HEADER)
+        self.print("(%d) Received graph (%d nodes)" % (task['Id'], task['NodeCount']), BGCOLORS.HEADER)
 
         # Solve it and get a graph
         graph = self.solve_task(task=task)
-        self.print("(%d) Solved graph" % task['Id'], BGCOLORS.OKGREEN)
+        self.print("(%d) Solved graph (%d nodes)" % (task['Id'], task['NodeCount']), BGCOLORS.OKGREEN)
+
         # Get the results
         results = self.get_results(graph=graph, task=task)
 
-        # Upload it to the server
+        # Upload the results to the server
         self.upload_results(results=results, graph=graph)
-        self.print("(%d) Uploaded results" % (task['Id']), BGCOLORS.OKBLUE)
+        self.print("(%d) Uploaded results (%d nodes)" % (task['Id'], task['NodeCount']), BGCOLORS.OKBLUE)
 
     def get_task(self):
         task = self.server.get_task(self.client_name)
