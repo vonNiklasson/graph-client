@@ -24,9 +24,7 @@ if os.getenv('VERSION') != '1.0':
 
 client_name = os.getenv('CLIENT_NAME')
 base_url = os.getenv('BASE_URL')
-thread_count = os.getenv('THREAD_COUNT')
-
-iteration_count = math.inf
+thread_count = int(os.getenv('THREAD_COUNT'))
 
 arg: str
 for arg in sys.argv[1:]:
