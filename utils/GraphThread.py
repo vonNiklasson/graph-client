@@ -53,7 +53,7 @@ class GraphThread:
         # Create the graph object
         graph = Creator.from_random(node_count)
         # Initialize the solver
-        annealing = Annealing2(graph, start_temperature=20, iterations=2)
+        annealing = Annealing2(graph)
         annealing.set_optimization_parameter(optimization)
         # Solve the graph
         graph = annealing.solve(False)
