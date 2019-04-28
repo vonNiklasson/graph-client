@@ -93,7 +93,7 @@ class GraphThread:
             start_color = type
 
         ts = datetime.now().strftime('%H:%M:%S')
-        print("%s%s%s  P%d: %s%s" % (BGCOLORS.BOLD, ts, start_color, self.thread_id, msg, stop_color))
+        print("%s%s%s %s P%d: %s%s" % (BGCOLORS.BOLD, ts, BGCOLORS.ENDC, start_color, self.thread_id, msg, stop_color))
 
 class BGCOLORS:
     HEADER = '\033[95m'
