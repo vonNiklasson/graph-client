@@ -15,6 +15,7 @@ class GraphThread:
             try:
                 gt.run()
             except Exception as e:
+                gt.print('Crashed, restarting in 2 seconds')
                 time.sleep(2)
 
     client_name: str
