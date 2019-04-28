@@ -8,5 +8,5 @@ python setup.py
 
 ## Run instance
 ```python
-`python main.py [-p <threads>]`
+python main.py [-p <threads>]
 ```
