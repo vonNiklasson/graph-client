@@ -9,8 +9,8 @@ from utils.ServerUtil import ServerUtil
 class GraphThread:
 
     @staticmethod
-    def start_thread(base_url, client_name):
-        gt = GraphThread(base_url, client_name)
+    def start_thread(base_url, client_name, thread_id):
+        gt = GraphThread(base_url, client_name, thread_id)
         while True:
             try:
                 gt.run()
@@ -19,16 +19,21 @@ class GraphThread:
 
     client_name: str
     server: ServerUtil
+    thread_id: int
 
-    def __init__(self, base_url, client_name):
+    def __init__(self, base_url, client_name, thread_id):
         self.client_name = client_name
+        self.thread_id = thread_id
         self.server = ServerUtil(base_url)
 
     def run(self):
         # Get a new task from the server
         task = self.get_task()
+        self.print("Received graph with %d nodes" % task['NodeCount'])
+
         # Solve it and get a graph
         graph = self.solve_task(task=task)
+        self.print("Solved graph with %d nodes" % task['NodeCount'])
         # Get the results
         results = self.get_results(graph=graph, task=task)
 
@@ -73,3 +78,6 @@ class GraphThread:
         self.server.upload_results(worker_id, results)
         self.server.upload_results(worker_id, {'Nodes': Analytics.get_node_dict(graph)})
         self.server.upload_results(worker_id, {'Edges': Analytics.get_edge_dict(graph)})
+
+    def print(self, msg):
+        print("P%d: %s" % (self.thread_id, msg))

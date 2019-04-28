@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from utils.GraphThread import GraphThread
 from utils.ServerUtil import ServerUtil
+from multiprocessing import Process
 
 # Suppress complex numbers
 warnings.filterwarnings('ignore')
@@ -32,4 +33,14 @@ for arg in sys.argv[1:]:
     if arg.startswith('-t='):
         thread_count = int(arg[3:])
 
-GraphThread.start_thread(base_url, client_name)
+print("Starting %d processes" % thread_count)
+
+processes = []
+
+for i in range(0, thread_count):
+    print("Process %d started" % (i+1))
+    processes.append(Process(target=GraphThread.start_thread, args=(base_url, client_name, (i+1))))
+    processes[i].start()
+
+for process in processes:
+    process.join()
