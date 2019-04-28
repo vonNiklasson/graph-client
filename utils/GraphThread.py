@@ -18,7 +18,7 @@ class GraphThread:
                 gt.run()
                 current_sleep = 10
             except Exception as e:
-                gt.print('Crashed, restarting in %d seconds' % current_sleep)
+                gt.print('Crashed, restarting in %d seconds' % current_sleep, BGCOLORS.FAIL)
                 time.sleep(current_sleep)
                 current_sleep += 10
 
@@ -34,17 +34,17 @@ class GraphThread:
     def run(self):
         # Get a new task from the server
         task = self.get_task()
-        self.print("(%d) Received graph with %d nodes" % (task['Id'], task['NodeCount']))
+        self.print("(%d) Received graph with %d nodes" % (task['Id'], task['NodeCount']), BGCOLORS.HEADER)
 
         # Solve it and get a graph
         graph = self.solve_task(task=task)
-        self.print("(%d) Solved graph" % task['Id'])
+        self.print("(%d) Solved graph" % task['Id'], BGCOLORS.OKGREEN)
         # Get the results
         results = self.get_results(graph=graph, task=task)
 
         # Upload it to the server
         self.upload_results(results=results, graph=graph)
-        self.print("(%d) Uploaded results" % (task['Id']))
+        self.print("(%d) Uploaded results" % (task['Id']), BGCOLORS.OKBLUE)
 
     def get_task(self):
         task = self.server.get_task(self.client_name)
@@ -85,6 +85,21 @@ class GraphThread:
         self.server.upload_results(worker_id, {'Nodes': Analytics.get_node_dict(graph)})
         self.server.upload_results(worker_id, {'Edges': Analytics.get_edge_dict(graph)})
 
-    def print(self, msg):
+    def print(self, msg, type=None):
+        start_color = None
+        stop_color = BGCOLORS.ENDC
+        if type != None:
+            start_color = type
+
         ts = datetime.now().strftime('%H:%M:%S')
-        print("%s   P%d: %s" % (ts, self.thread_id, msg))
+        print("%s%s%s  P%d: %s%s" % (BGCOLORS.BOLD, ts, start_color, self.thread_id, msg, stop_color))
+
+class BGCOLORS:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
