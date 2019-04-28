@@ -34,10 +34,21 @@ for arg in sys.argv[1:]:
 
 print("Starting %d processes" % thread_count)
 
+colors = [
+    '\033[92m',
+    '\033[94m',
+    '\033[95m',
+    '\033[96m',
+    '\033[97m',
+    '\033[93m',
+    '\033[90m',
+    '\033[91m',
+]
+
 processes = []
 
 for i in range(0, thread_count):
-    processes.append(Process(target=GraphThread.start_thread, args=(base_url, client_name, (i+1))))
+    processes.append(Process(target=GraphThread.start_thread, args=(base_url, client_name, (i+1), colors[i%8])))
     processes[i].start()
     print("Process %d started" % (i+1))
     time.sleep(0.5)

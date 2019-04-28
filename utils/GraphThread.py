@@ -10,42 +10,51 @@ from datetime import datetime
 class GraphThread:
 
     @staticmethod
-    def start_thread(base_url, client_name, thread_id):
+    def start_thread(base_url, client_name, thread_id, color=None):
         current_sleep = 10
-        gt = GraphThread(base_url, client_name, thread_id)
+        gt = GraphThread(base_url, client_name, thread_id, color)
         while True:
             try:
                 gt.run()
                 current_sleep = 10
             except Exception as e:
-                gt.print('Crashed, restarting in %d seconds' % current_sleep, BGCOLORS.FAIL)
+                gt.print('Crashed, restarting in %d seconds' % current_sleep, Styles.FAIL)
                 time.sleep(current_sleep)
                 current_sleep += 10
 
     client_name: str
     server: ServerUtil
     thread_id: int
+    color: None
 
-    def __init__(self, base_url, client_name, thread_id):
+    def __init__(self, base_url, client_name, thread_id, color):
         self.client_name = client_name
         self.thread_id = thread_id
         self.server = ServerUtil(base_url)
+        self.color = color
 
     def run(self):
         # Get a new task from the server
         task = self.get_task()
-        self.print("(%d) Received graph (%d nodes)" % (task['Id'], task['NodeCount']), BGCOLORS.HEADER)
+        self.print("(%d) Received graph (%d nodes)" % (task['Id'], task['NodeCount']))
 
         # Solve it and get a graph
+        start = time.process_time()
         graph = self.solve_task(task=task)
-        self.print("(%d) Solved graph (%d nodes)" % (task['Id'], task['NodeCount']), BGCOLORS.OKGREEN)
+        end = time.process_time()
+        # Calculate deltatime
+        delta_time = end - start
+        time_minutes = round((delta_time / 60)-0.49)
+        time_seconds = round(delta_time % 60)
+
+        self.print("(%d) Solved graph (%d nodes) in %sm %ss" % (task['Id'], task['NodeCount'], time_minutes, time_seconds))
 
         # Get the results
         results = self.get_results(graph=graph, task=task)
 
         # Upload the results to the server
         self.upload_results(results=results, graph=graph)
-        self.print("(%d) Uploaded results (%d nodes)" % (task['Id'], task['NodeCount']), BGCOLORS.OKBLUE)
+        self.print("(%d) Uploaded results (%d nodes)" % (task['Id'], task['NodeCount']))
 
     def get_task(self):
         task = self.server.get_task(self.client_name)
@@ -88,14 +97,14 @@ class GraphThread:
 
     def print(self, msg, type=None):
         start_color = None
-        stop_color = BGCOLORS.ENDC
-        if type != None:
-            start_color = type
+
+        if type is None:
+            start_color = self.color
 
         ts = datetime.now().strftime('%H:%M:%S')
-        print("%s%s%s %s P%d: %s%s" % (BGCOLORS.BOLD, ts, BGCOLORS.ENDC, start_color, self.thread_id, msg, stop_color))
+        print("%s%s%s %s P%d: %s%s" % (Styles.BOLD, ts, Styles.ENDC, start_color, self.thread_id, msg, Styles.ENDC))
 
-class BGCOLORS:
+class Styles:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
