@@ -4,19 +4,23 @@ import networkx
 from extended_networkx_tools import Creator, Analytics
 from simulated_annealing import Annealing2
 from utils.ServerUtil import ServerUtil
+from datetime import datetime
 
 
 class GraphThread:
 
     @staticmethod
     def start_thread(base_url, client_name, thread_id):
+        current_sleep = 10
         gt = GraphThread(base_url, client_name, thread_id)
         while True:
             try:
                 gt.run()
+                current_sleep = 10
             except Exception as e:
-                gt.print('Crashed, restarting in 2 seconds')
-                time.sleep(2)
+                gt.print('Crashed, restarting in %d seconds' % current_sleep)
+                time.sleep(current_sleep)
+                current_sleep += 10
 
     client_name: str
     server: ServerUtil
@@ -30,16 +34,17 @@ class GraphThread:
     def run(self):
         # Get a new task from the server
         task = self.get_task()
-        self.print("Received graph with %d nodes" % task['NodeCount'])
+        self.print("(%d) Received graph with %d nodes" % (task['Id'], task['NodeCount']))
 
         # Solve it and get a graph
         graph = self.solve_task(task=task)
-        self.print("Solved graph with %d nodes" % task['NodeCount'])
+        self.print("(%d) Solved graph" % task['Id'])
         # Get the results
         results = self.get_results(graph=graph, task=task)
 
         # Upload it to the server
         self.upload_results(results=results, graph=graph)
+        self.print("(%d) Uploaded results" % (task['Id']))
 
     def get_task(self):
         task = self.server.get_task(self.client_name)
@@ -81,4 +86,5 @@ class GraphThread:
         self.server.upload_results(worker_id, {'Edges': Analytics.get_edge_dict(graph)})
 
     def print(self, msg):
-        print("P%d: %s" % (self.thread_id, msg))
+        ts = datetime.now().strftime('%H:%M:%S')
+        print("%s   P%d: %s" % (ts, self.thread_id, msg))
