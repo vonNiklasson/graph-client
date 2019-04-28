@@ -1,6 +1,7 @@
 import os
 import sys
 import math
+import time
 import warnings
 
 from dotenv import load_dotenv
@@ -36,9 +37,10 @@ print("Starting %d processes" % thread_count)
 processes = []
 
 for i in range(0, thread_count):
-    print("Process %d started" % (i+1))
     processes.append(Process(target=GraphThread.start_thread, args=(base_url, client_name, (i+1))))
     processes[i].start()
+    print("Process %d started" % (i+1))
+    time.sleep(0.5)
 
 for process in processes:
     process.join()
