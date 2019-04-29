@@ -43,3 +43,7 @@ class ServerUtil:
             return True
         else:
             return False
+
+    def close_previous_workers(self, client_name):
+        url = '%sapi/workers/%s/close' % (self.base_url, client_name)
+        requests.post(url)

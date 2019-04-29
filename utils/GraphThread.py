@@ -4,6 +4,7 @@ import networkx
 import logging
 from extended_networkx_tools import Creator, Analytics
 from simulated_annealing import Annealing2
+from timeit import default_timer as timer
 from utils.ServerUtil import ServerUtil
 from datetime import datetime
 
@@ -41,9 +42,9 @@ class GraphThread:
         self.print("(%d) Received graph (%d nodes)" % (task['Id'], task['NodeCount']))
 
         # Solve it and get a graph
-        start = time.process_time()
+        start = timer()
         graph = self.solve_task(task=task)
-        end = time.process_time()
+        end = timer()
         # Calculate deltatime
         delta_time = end - start
         time_minutes = round((delta_time / 60)-0.49)

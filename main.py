@@ -32,6 +32,10 @@ for arg in sys.argv[1:]:
     if arg.startswith('-t='):
         thread_count = int(arg[3:])
 
+print("Closing previous unfinished work")
+server = ServerUtil(base_url)
+server.close_previous_workers(client_name)
+
 print("Starting %d processes" % thread_count)
 
 colors = [
