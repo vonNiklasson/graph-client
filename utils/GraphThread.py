@@ -81,8 +81,8 @@ class GraphThread:
     @staticmethod
     def get_results(graph: networkx.Graph, task):
         task['EdgeCount'] = len(graph.edges)
-        task['ConvergenceRate'] = Analytics.convergence_rate(graph)
-        task['EnergyCost'] = Annealing2.get_optimization_function(task['Optimization'])(graph)
+        task['ConvergenceRate'] = float(Analytics.convergence_rate(graph))
+        task['EnergyCost'] = Annealing2.get_optimization_function(task['Optimization'])(graph).real
         task['EdgeCost'] = Analytics.total_edge_cost(graph)
         task['Diameter'] = networkx.diameter(graph)
         task['AverageEccentricity'] = Analytics.get_average_eccentricity(graph)
