@@ -1,3 +1,5 @@
+import logging
+
 import requests
 
 
@@ -16,7 +18,8 @@ class ServerUtil:
         try:
             # Get the response from server
             response = requests.post(url, {'name': client_name})
-        except Exception:
+        except Exception as e:
+            logging.exception("Failed when fetching task")
             return None
 
         # Make sure it has created a resource
@@ -32,6 +35,7 @@ class ServerUtil:
             # Get the response from server
             response = requests.put(url, json=data)
         except Exception as e:
+            logging.exception("Failed when uploading results")
             return False
 
         # Make sure it has created a resource

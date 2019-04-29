@@ -1,8 +1,8 @@
 import os
 import sys
-import math
 import time
 import warnings
+import logging
 
 from dotenv import load_dotenv
 
@@ -46,6 +46,8 @@ colors = [
 ]
 
 processes = []
+
+logging.basicConfig(filename='client.log', level=logging.INFO)
 
 for i in range(0, thread_count):
     processes.append(Process(target=GraphThread.start_thread, args=(base_url, client_name, (i+1), colors[i%8])))

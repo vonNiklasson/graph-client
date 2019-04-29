@@ -1,6 +1,7 @@
 import time
 
 import networkx
+import logging
 from extended_networkx_tools import Creator, Analytics
 from simulated_annealing import Annealing2
 from utils.ServerUtil import ServerUtil
@@ -18,6 +19,7 @@ class GraphThread:
                 gt.run()
                 current_sleep = 10
             except Exception as e:
+                logging.exception("Failed when running thread")
                 gt.print('Crashed, restarting in %d seconds' % current_sleep, Styles.FAIL)
                 time.sleep(current_sleep)
                 current_sleep += 10
