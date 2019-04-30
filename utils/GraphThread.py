@@ -2,7 +2,7 @@ import time
 
 import networkx
 import logging
-from extended_networkx_tools import Creator, Analytics
+from extended_networkx_tools import Creator, Analytics, AnalyticsGraph
 from simulated_annealing import Annealing2
 from timeit import default_timer as timer
 from utils.ServerUtil import ServerUtil
@@ -43,7 +43,7 @@ class GraphThread:
 
         # Solve it and get a graph
         start = timer()
-        graph = self.solve_task(task=task)
+        analytics_graph = self.solve_task(task=task)
         end = timer()
         # Calculate deltatime
         delta_time = end - start
@@ -53,10 +53,10 @@ class GraphThread:
         self.print("(%d) Solved graph (%d nodes) in %sm %ss" % (task['Id'], task['NodeCount'], time_minutes, time_seconds))
 
         # Get the results
-        results = self.get_results(graph=graph, task=task)
+        results = self.get_results(analytics_graph=analytics_graph, task=task)
 
         # Upload the results to the server
-        self.upload_results(results=results, graph=graph)
+        self.upload_results(results=results, analytics_graph=analytics_graph)
         self.print("(%d) Uploaded results (%d nodes)" % (task['Id'], task['NodeCount']))
 
     def get_task(self):
@@ -64,7 +64,7 @@ class GraphThread:
         return task
 
     @staticmethod
-    def solve_task(task):
+    def solve_task(task) -> AnalyticsGraph:
         # Get relevant data
         node_count = task['NodeCount']
         optimization = task['Optimization']
@@ -75,28 +75,28 @@ class GraphThread:
         annealing = Annealing2(graph)
         annealing.set_optimization_parameter(optimization)
         # Solve the graph
-        graph = annealing.solve(False)
+        analytics_graph = annealing.solve(False)
 
-        return graph
+        return analytics_graph
 
     @staticmethod
-    def get_results(graph: networkx.Graph, task):
-        task['EdgeCount'] = len(graph.edges)
-        task['ConvergenceRate'] = float(Analytics.convergence_rate(graph))
-        task['EnergyCost'] = Annealing2.get_optimization_function(task['Optimization'])(graph).real
-        task['EdgeCost'] = Analytics.total_edge_cost(graph)
-        task['Diameter'] = networkx.diameter(graph)
-        task['AverageEccentricity'] = Analytics.get_average_eccentricity(graph)
+    def get_results(analytics_graph: AnalyticsGraph, task):
+        task['EdgeCount'] = analytics_graph.get_dimension()
+        task['ConvergenceRate'] = float(analytics_graph.get_convergence_rate())
+        task['EnergyCost'] = Annealing2.get_optimization_function(task['Optimization'])(analytics_graph).real
+        task['EdgeCost'] = analytics_graph.get_edge_cost()
+        task['Diameter'] = networkx.diameter(analytics_graph.graph())
+        task['AverageEccentricity'] = Analytics.get_average_eccentricity(analytics_graph.graph())
 
         return task
 
-    def upload_results(self, results, graph: networkx.Graph):
+    def upload_results(self, results, analytics_graph: AnalyticsGraph):
         worker_id = results['Id']
-        results['Eccentricities'] = Analytics.get_eccentricity_distribution(graph)
+        results['Eccentricities'] = Analytics.get_eccentricity_distribution(analytics_graph.graph())
 
         self.server.upload_results(worker_id, results)
-        self.server.upload_results(worker_id, {'Nodes': Analytics.get_node_dict(graph)})
-        self.server.upload_results(worker_id, {'Edges': Analytics.get_edge_dict(graph)})
+        self.server.upload_results(worker_id, {'Nodes': Analytics.get_node_dict(analytics_graph.graph())})
+        self.server.upload_results(worker_id, {'Edges': Analytics.get_edge_dict(analytics_graph.graph())})
 
     def print(self, msg, type=None):
         start_color = None
