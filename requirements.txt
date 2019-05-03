@@ -2,7 +2,7 @@ certifi==2019.3.9
 chardet==3.0.4
 cycler==0.10.0
 decorator==4.4.0
-extended-networkx-tools==0.14.0.rc1
+extended-networkx-tools==0.15.1.rc1
 idna==2.8
 kiwisolver==1.1.0
 matplotlib==3.0.3
@@ -11,7 +11,7 @@ numpy==1.16.3
 pyparsing==2.4.0
 python-dateutil==2.8.0
 requests==2.21.0
-git+git://github.com/vonNiklasson/graph-sa.git#simulated-annealing
+git+git://github.com/vonNiklasson/graph-sa.git@numba-support#simulated-annealing
 six==1.12.0
 urllib3==1.24.2
 python-dotenv
