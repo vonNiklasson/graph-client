@@ -52,7 +52,8 @@ class GraphThread:
         time_minutes = round((delta_time / 60)-0.49)
         time_seconds = round(delta_time % 60)
 
-        self.print("(%d) Solved graph (%d nodes) in %sm %ss" % (task['Id'], task['NodeCount'], time_minutes, time_seconds))
+        self.print("(%d) Solved graph (%d nodes) in %sm %ss" %
+                   (task['Id'], task['NodeCount'], time_minutes, time_seconds))
 
         # Get the results
         results = self.get_results(analytics_graph=analytics_graph, task=task)
@@ -112,6 +113,7 @@ class GraphThread:
 
         # Initialize the solver
         full_annealing = Annealing2(full_graph)
+
         full_analytics_graph = full_annealing.solve(solve_for_nodes=solve_for_nodes)
 
         return full_analytics_graph
@@ -201,7 +203,8 @@ class GraphThread:
             start_color = self.color
 
         ts = datetime.now().strftime('%H:%M:%S')
-        print("%s%s%s %s P%d: %s%s" % (Styles.BOLD, ts, Styles.ENDC, start_color, self.thread_id, msg, Styles.ENDC))
+        print("%s%s%s %s P%d: %s%s" %
+              (Styles.BOLD, ts, Styles.ENDC, start_color, self.thread_id, msg, Styles.ENDC))
 
 class Styles:
     HEADER = '\033[95m'
