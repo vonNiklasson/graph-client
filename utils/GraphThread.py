@@ -66,8 +66,17 @@ class GraphThread:
 
     @staticmethod
     def solve_task(task) -> AnalyticsGraph:
+        solve_type = task['SolveType']
+        if solve_type == 'diff':
+            return GraphThread.solve_task_diff(task)
+        elif solve_type == 'random':
+            return GraphThread.solve_task_random(task)
+        else:
+            return GraphThread.solve_task_random(task)
+
+    @staticmethod
+    def solve_task_diff(task) -> AnalyticsGraph:
         # Get relevant data
-        node_count = task['NodeCount']
         optimization = task['Optimization']
 
         nodes = task['NodeData']
@@ -91,6 +100,22 @@ class GraphThread:
         full_analytics_graph = full_annealing.solve(solve_for_nodes=solve_for_nodes)
 
         return full_analytics_graph
+
+    @staticmethod
+    def solve_task_random(task) -> AnalyticsGraph:
+        # Get relevant data
+        node_count = task['NodeCount']
+        optimization = task['Optimization']
+
+        # Create the partial graph object
+        graph = Creator.from_random(node_count)
+        # Initialize the solver
+        annealing = Annealing2(graph)
+        annealing.set_optimization_parameter(optimization)
+        # Solve the graph
+        analytics_graph = annealing.solve()
+
+        return analytics_graph
 
     @staticmethod
     def get_results(analytics_graph: AnalyticsGraph, task):
