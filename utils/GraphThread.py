@@ -1,5 +1,6 @@
 import time
 from typing import Tuple, List
+from ast import literal_eval
 
 import networkx
 import logging
@@ -40,7 +41,7 @@ class GraphThread:
     def run(self):
         # Get a new task from the server
         task = self.get_task()
-        self.print("(%d) Received graph (%d nodes)" % (task['Id'], task['NodeCount']))
+        self.print("(%d) Received graph (%d nodes), type %s" % (task['Id'], task['NodeCount'], task['SolveType']))
 
         # Solve it and get a graph
         start = timer()
@@ -69,6 +70,8 @@ class GraphThread:
         solve_type = task['SolveType']
         if solve_type == 'diff':
             return GraphThread.solve_task_diff(task)
+        elif solve_type == 'spec':
+            return GraphThread.solve_task_spec(task)
         elif solve_type == 'random':
             return GraphThread.solve_task_random(task)
         else:
@@ -79,9 +82,20 @@ class GraphThread:
         # Get relevant data
         optimization = task['Optimization']
 
-        nodes = task['NodeData']
-        edges = task['EdgeData']
+        nodes = {}
+        edges = {}
+
+        if task['NodeData'] is not None:
+            nodes = literal_eval(task['NodeData'])
+        if task['EdgeData'] is not None:
+            edges = literal_eval(task['EdgeData'])
+
         removed_node_count = task['RemovedNodeCount']
+
+        # If there's no nodes to be removed, it's rather a graph to be solved
+        # from spec.
+        if removed_node_count == 0:
+            return GraphThread.solve_task_spec(task)
 
         # Create the partial graph object
         partial_graph = Creator.from_spec(nodes, edges)
@@ -95,11 +109,35 @@ class GraphThread:
         # Create the fill graph, extend the partial with empty nodes
         full_graph = partial_analytics_graph.graph().copy()
         solve_for_nodes = GraphThread.append_nodes(full_graph, removed_nodes)
+
         # Initialize the solver
         full_annealing = Annealing2(full_graph)
         full_analytics_graph = full_annealing.solve(solve_for_nodes=solve_for_nodes)
 
         return full_analytics_graph
+
+    @staticmethod
+    def solve_task_spec(task) -> AnalyticsGraph:
+        # Get relevant data
+        optimization = task['Optimization']
+
+        nodes = {}
+        edges = {}
+
+        if task['NodeData'] is not None:
+            nodes = literal_eval(task['NodeData'])
+        if task['EdgeData'] is not None:
+            edges = literal_eval(task['EdgeData'])
+
+        # Create the partial graph object
+        graph = Creator.from_spec(nodes, edges)
+        # Initialize the solver
+        annealing = Annealing2(graph)
+        annealing.set_optimization_parameter(optimization)
+        # Solve the graph
+        analytics_graph = annealing.solve()
+
+        return analytics_graph
 
     @staticmethod
     def solve_task_random(task) -> AnalyticsGraph:
