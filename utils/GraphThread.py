@@ -1,4 +1,5 @@
 import time
+from typing import Tuple, List
 
 import networkx
 import logging
@@ -69,15 +70,27 @@ class GraphThread:
         node_count = task['NodeCount']
         optimization = task['Optimization']
 
-        # Create the graph object
-        graph = Creator.from_random(node_count)
-        # Initialize the solver
-        annealing = Annealing2(graph)
-        annealing.set_optimization_parameter(optimization)
-        # Solve the graph
-        analytics_graph = annealing.solve(False)
+        nodes = task['NodeData']
+        edges = task['EdgeData']
+        removed_node_count = task['RemovedNodeCount']
 
-        return analytics_graph
+        # Create the partial graph object
+        partial_graph = Creator.from_spec(nodes, edges)
+        removed_nodes = GraphThread.remove_nodes(partial_graph, removed_node_count)
+        # Initialize the solver
+        partial_annealing = Annealing2(partial_graph)
+        partial_annealing.set_optimization_parameter(optimization)
+        # Solve the graph
+        partial_analytics_graph = partial_annealing.solve()
+
+        # Create the fill graph, extend the partial with empty nodes
+        full_graph = partial_analytics_graph.graph().copy()
+        solve_for_nodes = GraphThread.append_nodes(full_graph, removed_nodes)
+        # Initialize the solver
+        full_annealing = Annealing2(full_graph)
+        full_analytics_graph = full_annealing.solve(solve_for_nodes=solve_for_nodes)
+
+        return full_analytics_graph
 
     @staticmethod
     def get_results(analytics_graph: AnalyticsGraph, task):
@@ -89,6 +102,26 @@ class GraphThread:
         task['AverageEccentricity'] = Analytics.get_average_eccentricity(analytics_graph.graph())
 
         return task
+
+    @staticmethod
+    def remove_nodes(nxg: networkx.Graph, remove_node_count: int):
+        removed_nodes = []
+        node_count = len(nxg.nodes)
+        for i in range(0, remove_node_count):
+            remove_id = node_count - i - 1
+            removed_nodes.append((remove_id, nxg.nodes[remove_id]['x'], nxg.nodes[remove_id]['y']))
+            nxg.remove_node(remove_id)
+        removed_nodes.reverse()
+        return removed_nodes
+
+    @staticmethod
+    def append_nodes(nxg: networkx.Graph, nodes: List[Tuple[int, int, int]]):
+        solve_for_nodes = []
+        for node in nodes:
+            nxg.add_node(node[0], x=node[1], y=node[2])
+            Creator.add_weighted_edge(nxg, node[0], node[0]-1)
+            solve_for_nodes.append(node[0])
+        return solve_for_nodes
 
     def upload_results(self, results, analytics_graph: AnalyticsGraph):
         worker_id = results['Id']
