@@ -25,7 +25,6 @@ class GraphThread:
                 gt.run()
                 current_sleep = 10
             except Exception as e:
-                raise e
                 logging.exception("Failed when running thread")
                 gt.print('Crashed, restarting in %d seconds' % current_sleep, Styles.FAIL)
                 time.sleep(current_sleep)
@@ -79,7 +78,7 @@ class GraphThread:
             return Solvers.Spec.solve(task)
         elif solve_type == 'random':
             return Solvers.Random.solve(task)
-        elif solve_type == 'field':
+        elif solve_type == 'field' or solve_type == 'dfield':
             return Solvers.Field.solve(task)
         else:
             return Solvers.Random.solve(task)
