@@ -39,7 +39,10 @@ print("Closing previous unfinished work")
 server = ServerUtil(base_url)
 server.close_previous_workers(client_name)
 
-print("Starting %d processes" % thread_count)
+if thread_count > 1:
+    print("Starting %d processes" % thread_count)
+else:
+    print("Starting %d process" % thread_count)
 
 colors = [
     '\033[92m',

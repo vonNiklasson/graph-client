@@ -21,7 +21,6 @@ class GraphThread:
                 gt.run(recalc)
                 current_sleep = 10
             except Exception as e:
-                raise e
                 logging.exception("Failed when running thread")
                 gt.print('Crashed, restarting in %d seconds' % current_sleep, Styles.FAIL)
                 time.sleep(current_sleep)
