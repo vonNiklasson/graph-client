@@ -26,11 +26,14 @@ if os.getenv('VERSION') != '1.0':
 client_name = os.getenv('CLIENT_NAME')
 base_url = os.getenv('BASE_URL')
 thread_count = int(os.getenv('THREAD_COUNT'))
+recalc = False
 
 arg: str
 for arg in sys.argv[1:]:
     if arg.startswith('-t='):
         thread_count = int(arg[3:])
+    if arg.startswith('--recalc'):
+        recalc = True
 
 print("Closing previous unfinished work")
 server = ServerUtil(base_url)
@@ -54,7 +57,7 @@ processes = []
 logging.basicConfig(filename='client.log', level=logging.INFO)
 
 for i in range(0, thread_count):
-    processes.append(Process(target=GraphThread.start_thread, args=(base_url, client_name, (i+1), colors[i%8])))
+    processes.append(Process(target=GraphThread.start_thread, args=(base_url, client_name, (i+1), colors[i%8], recalc)))
     processes[i].start()
     print("Process %d started" % (i+1))
     time.sleep(0.5)

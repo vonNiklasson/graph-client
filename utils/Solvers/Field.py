@@ -16,8 +16,19 @@ class Field:
     @staticmethod
     def solve(task) -> (AnalyticsGraph, Dict):
 
-        # Pass the graph to the random solver
-        analytics_graph, custom_data = Random.solve(task)
+        recalc = False
+        if 'Recalc' in task:
+            recalc = task['Recalc'] == 'True'
+
+        if recalc:
+            nodes = literal_eval(task['NodeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+            edges = literal_eval(task['EdgeData'].replace('"', ''))
+            graph = Creator.from_spec(nodes, edges)
+            analytics_graph = AnalyticsGraph(graph)
+            custom_data = {}
+        else:
+            # Pass the graph to the random solver
+            analytics_graph, custom_data = Random.solve(task)
 
         # Get the custom results from the field
         custom_results = Field.get_custom_results(analytics_graph.graph(), task)

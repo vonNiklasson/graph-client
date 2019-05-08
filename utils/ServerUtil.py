@@ -28,6 +28,22 @@ class ServerUtil:
         else:
             return None
 
+    def get_recalc_task(self):
+        url = "%sapi/thread/recalc" % self.base_url
+
+        try:
+            # Get the response from server
+            response = requests.get(url)
+        except Exception as e:
+            logging.exception("Failed when fetching recalc task")
+            return None
+
+        # Make sure it has created a resource
+        if response.status_code == requests.codes.ok:
+            return response.json()
+        else:
+            return None
+
     def upload_results(self, worker_id: int, data):
         url = "%sapi/thread/%d" % (self.base_url, worker_id)
 

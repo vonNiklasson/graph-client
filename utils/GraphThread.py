@@ -1,11 +1,7 @@
 import time
-from typing import Tuple, List
-from ast import literal_eval
 
-import networkx
 import logging
-from extended_networkx_tools import Creator, Analytics, AnalyticsGraph
-from simulated_annealing import Annealing2
+from extended_networkx_tools import Analytics, AnalyticsGraph
 from timeit import default_timer as timer
 
 from utils import Solvers
@@ -17,14 +13,15 @@ from datetime import datetime
 class GraphThread:
 
     @staticmethod
-    def start_thread(base_url, client_name, thread_id, color=None):
+    def start_thread(base_url, client_name, thread_id, color=None, recalc=False):
         current_sleep = 10
         gt = GraphThread(base_url, client_name, thread_id, color)
         while True:
             try:
-                gt.run()
+                gt.run(recalc)
                 current_sleep = 10
             except Exception as e:
+                raise e
                 logging.exception("Failed when running thread")
                 gt.print('Crashed, restarting in %d seconds' % current_sleep, Styles.FAIL)
                 time.sleep(current_sleep)
@@ -41,9 +38,9 @@ class GraphThread:
         self.server = ServerUtil(base_url)
         self.color = color
 
-    def run(self):
+    def run(self, recalc=False):
         # Get a new task from the server
-        task = self.get_task()
+        task = self.get_task(recalc)
         self.print("(%d) Received graph (%d nodes), type %s" % (task['Id'], task['NodeCount'], task['SolveType']))
 
         # Solve it and get a graph
@@ -65,8 +62,11 @@ class GraphThread:
         self.upload_results(results=results, analytics_graph=analytics_graph)
         self.print("(%d) Uploaded results (%d nodes)" % (task['Id'], task['NodeCount']))
 
-    def get_task(self):
-        task = self.server.get_task(self.client_name)
+    def get_task(self, recalc=False):
+        if recalc:
+            task = self.server.get_recalc_task()
+        else:
+            task = self.server.get_task(self.client_name)
         return task
 
     @staticmethod
