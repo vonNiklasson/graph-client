@@ -30,7 +30,7 @@ class GraphUtils:
 
     @staticmethod
     def get_results(analytics_graph: AnalyticsGraph, task, custom_data=None):
-        task['EdgeCount'] = analytics_graph.get_dimension()
+        task['EdgeCount'] = len(analytics_graph.graph().edges)
         task['ConvergenceRate'] = float(analytics_graph.get_convergence_rate())
         task['EnergyCost'] = Annealing2.get_optimization_function(task['Optimization'])(analytics_graph).real
         task['EdgeCost'] = analytics_graph.get_edge_cost()
