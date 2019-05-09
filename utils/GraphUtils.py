@@ -58,3 +58,17 @@ class GraphUtils:
         iterations = extra_data['iterations'] if 'iterations' in extra_data else 200
 
         return Annealing2(graph, start_temperature=start_temp, iterations=iterations)
+
+    @staticmethod
+    def get_node_data(task):
+        nodes = {}
+        if 'NodeData' in task and task['NodeData'] is not None:
+            nodes = literal_eval(task['NodeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+        return nodes
+
+    @staticmethod
+    def get_edge_data(task):
+        edges = {}
+        if 'EdgeData' in task and task['EdgeData'] is not None:
+            edges = literal_eval(task['EdgeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+        return edges

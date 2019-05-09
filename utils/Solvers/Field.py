@@ -1,14 +1,12 @@
-from ast import literal_eval
 from typing import Dict
 
 import networkx as nx
 import numpy as np
 
-from extended_networkx_tools import AnalyticsGraph, Creator, Solver
-from simulated_annealing import Annealing2
+from extended_networkx_tools import AnalyticsGraph, Creator
 
 from utils.GraphUtils import GraphUtils
-from utils.Solvers import Random
+from utils.Solvers import Random, Spec
 
 
 class Field:
@@ -21,14 +19,17 @@ class Field:
             recalc = task['Recalc'] == 'True'
 
         if recalc:
-            nodes = literal_eval(task['NodeData'].replace('[', '(').replace(']', ')').replace('"', ''))
-            edges = literal_eval(task['EdgeData'].replace('"', ''))
+            nodes = GraphUtils.get_node_data(task)
+            edges = GraphUtils.get_edge_data(task)
             graph = Creator.from_spec(nodes, edges)
             analytics_graph = AnalyticsGraph(graph)
             custom_data = {}
         else:
-            # Pass the graph to the random solver
-            analytics_graph, custom_data = Random.solve(task)
+            if 'NodeData' in task:
+                analytics_graph, custom_data = Spec.solve(task)
+            else:
+                # Pass the graph to the random solver
+                analytics_graph, custom_data = Random.solve(task)
 
         # Get the custom results from the field
         custom_results = Field.get_custom_results(analytics_graph.graph(), task)
