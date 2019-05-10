@@ -77,7 +77,7 @@ class GraphThread:
             return Solvers.Spec.solve(task)
         elif solve_type == 'random':
             return Solvers.Random.solve(task)
-        elif solve_type == 'field' or solve_type == 'dfield' or solve_type == 'sfield':
+        elif solve_type == 'field' or solve_type == 'dfield' or solve_type == 'sfield' or solve_type == 'sfield_fr':
             return Solvers.Field.solve(task)
         else:
             return Solvers.Random.solve(task)
