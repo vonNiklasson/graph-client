@@ -66,7 +66,9 @@ class GraphUtils:
         if 'NodeData' in task and task['NodeData'] is not None:
             nodes = literal_eval(task['NodeData'].replace('[', '(').replace(']', ')').replace('"', ''))
         elif 'NodeData' in extra_data and extra_data['NodeData'] is not None:
-            nodes = literal_eval(extra_data['NodeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+            nodes = {}
+            for node_id, coord in extra_data['NodeData'].items():
+                nodes[int(node_id)] = tuple(coord)
         return nodes
 
     @staticmethod
@@ -76,5 +78,7 @@ class GraphUtils:
         if 'EdgeData' in task and task['EdgeData'] is not None:
             edges = literal_eval(task['EdgeData'].replace('[', '(').replace(']', ')').replace('"', ''))
         elif 'EdgeData' in extra_data and extra_data['EdgeData'] is not None:
-            edges = literal_eval(extra_data['EdgeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+            edges = {}
+            for node_id, con_nodes in extra_data['EdgeData'].items():
+                edges[int(node_id)] = map(int, con_nodes)
         return edges
