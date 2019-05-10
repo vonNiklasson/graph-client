@@ -76,7 +76,7 @@ class GraphUtils:
         edges = {}
         extra_data = GraphUtils.parse_extra_data(task)
         if 'EdgeData' in task and task['EdgeData'] is not None:
-            edges = literal_eval(task['EdgeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+            edges = literal_eval(task['EdgeData'].replace('"', ''))
         elif 'EdgeData' in extra_data and extra_data['EdgeData'] is not None:
             edges = {}
             for node_id, con_nodes in extra_data['EdgeData'].items():
