@@ -25,7 +25,8 @@ class Field:
             analytics_graph = AnalyticsGraph(graph)
             custom_data = {}
         else:
-            if 'NodeData' in task:
+            nodes = GraphUtils.get_node_data(task)
+            if bool(nodes):
                 analytics_graph, custom_data = Spec.solve(task)
             else:
                 # Pass the graph to the random solver

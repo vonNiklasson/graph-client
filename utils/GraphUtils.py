@@ -62,13 +62,19 @@ class GraphUtils:
     @staticmethod
     def get_node_data(task):
         nodes = {}
+        extra_data = GraphUtils.parse_extra_data(task)
         if 'NodeData' in task and task['NodeData'] is not None:
             nodes = literal_eval(task['NodeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+        elif 'NodeData' in extra_data and extra_data['NodeData'] is not None:
+            nodes = literal_eval(extra_data['NodeData'].replace('[', '(').replace(']', ')').replace('"', ''))
         return nodes
 
     @staticmethod
     def get_edge_data(task):
         edges = {}
+        extra_data = GraphUtils.parse_extra_data(task)
         if 'EdgeData' in task and task['EdgeData'] is not None:
             edges = literal_eval(task['EdgeData'].replace('[', '(').replace(']', ')').replace('"', ''))
+        elif 'EdgeData' in extra_data and extra_data['EdgeData'] is not None:
+            edges = literal_eval(extra_data['EdgeData'].replace('[', '(').replace(']', ')').replace('"', ''))
         return edges
